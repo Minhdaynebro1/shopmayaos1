@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SHOPMAYAOS1 | QNM</title>
+  <link rel="icon" href="https://i.imgur.com/ihmtfna.jpeg">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-body: #020617;
+      --bg-card: #0f172a;
+      --primary: #a855f7;
+      --secondary: #06b6d4;
+      --text-main: #94a3b8;
+      --text-highlight: #ffffff;
+      --border-color: #1e293b;
+      --online-color: #10b981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-body);
+      color: var(--text-main);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Loading Screen */
+    #loading-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 9999; transition: 0.5s;
+    }
+    .loader {
+      border: 4px solid #1e293b; border-top: 4px solid var(--primary);
+      border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+
+    header { text-align: center; padding: 0px 10px; background: #151414; }
+
+    /* MENU STYLE - ĐÃ CHỈNH ĐẸP HƠN */
+    nav {
+      display: flex; justify-content: center; gap: 12px; padding: 15px;
+      background: rgba(15, 23, 42, 0.8); position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(12px); border-bottom: 2px solid #1e293b;
+    }
+    nav a {
+      color: #94a3b8; text-decoration: none;
+      font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
+      padding: 10px 22px; border-radius: 12px; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 1px solid transparent; position: relative;
+    }
+    nav a:hover {
+      color: #fff; background: rgba(255, 255, 255, 0.05); transform: translateY(-3px);
+    }
+    nav a.active-link {
+      color: #fff; background: var(--primary);
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Content Section */
+    .section {
+      display: none; padding: 30px 15px; max-width: 900px; margin: auto;
+      animation: slideIn 0.5s ease forwards;
+    }
+    .section.active { display: block; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Heading Text */
+    h2 {
+      color: #fff; font-size: 1.8em; margin-bottom: 20px; font-weight: 800;
+      display: flex; align-items: center; gap: 10px;
+    }
+    h2::after { content: ''; height: 3px; flex: 1; background: linear-gradient(90deg, var(--primary), transparent); border-radius: 2px; }
+
+    /* Info Boxes */
+    .info-box { background: var(--bg-card); padding: 20px; border-radius: 15px; border: 1px solid var(--border-color); margin-bottom: 20px; line-height: 1.8; }
+    .warning-box { background: rgba(244, 63, 94, 0.1); padding: 20px; border-radius: 15px; border-left: 4px solid #f43f5e; color: #fda4af; margin-bottom: 20px; }
+
+    /* UY TÍN SECTION */
+    .uytin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .uytin-card { 
+      background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid var(--border-color);
+      padding: 25px; border-radius: 20px; text-align: center; transition: 0.3s;
+    }
+    .uytin-card:hover { border-color: var(--primary); transform: scale(1.02); }
+    .uytin-card h3 { color: var(--primary); font-size: 2.2em; font-weight: 800; margin-bottom: 5px; }
+    .uytin-card p { font-weight: 600; font-size: 0.9em; text-transform: uppercase; color: #fff; }
+
+    /* BOX THỐNG KÊ RIÊNG BIỆT */
+    .stats-container {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px;
+    }
+    .stat-box {
+      background: rgba(30, 41, 59, 0.5); border: 1px dashed var(--border-color);
+      padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 15px;
+    }
+    .stat-icon { font-size: 24px; }
+    .stat-info h4 { color: #fff; font-size: 1.2em; line-height: 1; }
+    .stat-info p { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
+
+    /* CATEGORY BUTTONS */
+    .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; }
+    .cat-card {
+      background: var(--bg-card); border: 1px solid var(--border-color); padding: 30px;
+      border-radius: 20px; text-align: center; cursor: pointer; transition: 0.3s;
+    }
+    .cat-card:hover { border-color: var(--secondary); background: rgba(6, 182, 212, 0.05); transform: translateY(-5px); }
+    .cat-card h3 { color: #fff; margin-bottom: 10px; font-weight: 700; }
+
+    /* PRODUCT CARDS */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .product-card {
+      background: var(--bg-card); border-radius: 20px; padding: 25px; text-align: center;
+      position: relative; border: 1px solid var(--border-color); overflow: hidden;
+    }
+    .product-card:hover { border-color: var(--primary); }
+    .price-tag {
+      position: absolute; top: 0; right: 0; background: var(--primary); color: #fff;
+      padding: 5px 15px; border-bottom-left-radius: 15px; font-weight: 800; font-size: 14px;
+    }
+    .product-card img { width: 80px; margin-bottom: 15px; }
+    .buy-btn {
+      display: block; margin-top: 15px; background: #fff; color: #000;
+      padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 800; transition: 0.3s;
+    }
+    .buy-btn:hover { background: var(--primary); color: #fff; box-shadow: 0 5px 15px rgba(168, 85, 247, 0.4); }
+
+    .back-btn {
+      background: #1e293b; color: #fff; border: none; padding: 10px 20px;
+      border-radius: 10px; cursor: pointer; margin-bottom: 20px; font-weight: 600;
+    }
+
+    .contact-item { 
+      background: var(--bg-card); padding: 15px; border-radius: 12px; 
+      margin-bottom: 10px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;
+    }
+    .contact-item a { color: var(--secondary); text-decoration: none; font-weight: 600; }
+
+    footer { text-align: center; padding: 30px; color: #475569; font-size: 13px; font-weight: 600; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 600px) {
+      nav { gap: 5px; padding: 10px; }
+      nav a { padding: 8px 12px; font-size: 11px; border-radius: 8px; }
+    }
+    /* Dịch vụ & Đánh giá */
+    .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; }
+    .cat-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 25px; border-radius: 20px; text-align: center; cursor: pointer; transition: 0.3s; }
+    .review-item { background: rgba(15, 23, 42, 0.6); border: 1px solid #1e293b; padding: 15px; border-radius: 12px; margin-bottom: 10px; }
+    .review-stars { color: #fbbf24; }
+    .hidden { display: none !important; }
+    footer { text-align: center; padding: 40px 20px; color: #475569; font-size: 12px; }
+    
+    /* Thông báo lỗi */
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-align: center;
+      display: none;
+    }
+</style>
+</head>
+<body>
+
+<div id="loading-screen"><div class="loader"></div></div>
+
+<header>
+  <img src="https://i.ibb.co/Kzb2017f/TAPHOAGAME5-SAO-COM-1.png" alt="LOGO" style="max-height: 100px; border-radius: 10px;">
+</header>
+
+<nav>
+  <a href="#" onclick="showSection('gioithieu', this)" class="active-link">Giới Thiệu</a>
+  <a href="#" onclick="showSection('dichvu', this)">Dịch Vụ</a>
+  <a href="#" onclick="showSection('lienhe', this)">Liên Hệ</a>
+  <a href="#" onclick="showSection('menu', this)">Menu</a>
+</nav>
+
+<div id="gioithieu" class="section active">
+  <h2>🚀 HỆ THỐNG</h2>
+  <div class="info-box">
+    Chào mừng bạn đến với <b>SHOPMAYAOS1</b>. Chúng tôi chuyên cung cấp máy ảo UgPhone chất lượng cao, hỗ trợ treo game 24/7 ổn định nhất.
+  </div>
+
+  <h2>📊 THỐNG KÊ TRUY CẬP</h2>
+  <div class="error-message" id="stats-error">Không thể kết nối đến server. Đang sử dụng dữ liệu tạm thời.</div>
+  <div class="stats-container">
+    <div class="stat-box">
+      <div class="stat-icon">👥</div>
+      <div class="stat-info">
+        <h4 id="stat-visits">0</h4>
+        <p>Khách đã Vào Web</p>
+      </div>
+    </div>
+    <div class="stat-box" style="border-color: var(--online-color);">
+      <div class="stat-icon">🟢</div>
+      <div class="stat-info">
+        <h4 id="stat-online" style="color: var(--online-color);">0</h4>
+        <p>Khách Đã Online</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>🔰 ĐỘ UY TÍN</h2>
+  <div class="uytin-grid">
+    <div class="uytin-card"><h3>502+</h3><p>Giao Dịch</p></div>
+    <div class="uytin-card"><h3 id="stat-reviews">0+</h3><p>FeedBack</p></div>
+  </div>
+
+  <h2 style="margin-top: 30px;">❗ LƯU Ý</h2>
+  <div class="warning-box">
+    • Không hoàn tiền sau khi mua.<br>
+  </div>
+</div>
+
+<div id="dichvu" class="section">
+  <div id="service-categories">
+    <h2>✨ CHỌN DỊCH VỤ</h2>
+    <div class="cat-grid">
+      <div class="cat-card" onclick="openService('sv-tkmk')">
+        <h3>UGPHONE GMAIL ẢO</h3>
+        <p>ugphone gmail ảo sống được 7 ngày / 30 ngày</p>
+      </div>
+      <div class="cat-card" onclick="openService('sv-tkmk2')">
+        <h3>UGPHONE GMAIL THẬT</h3>
+        <p>ugphone gmail thật sống lâu<p>
+      </div>
+      <div class="cat-card" onclick="openService('sv-share')">
+        <h3>UGPHONE SHARE</h3>
+        <p>ugphone chia sẻ máy rẻ nhưng đợi duyệt</p>
+      </div>
+      <div class="cat-card" onclick="openService('sv-giahan')">
+        <h3>GIA HẠN UGPHONE</h3>
+        <p>gia hạn thêm ngày ugphone, yêu cầu máy phải còn 1-2 ngày</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="sv-tkmk" class="service-detail hidden">
+    <button class="back-btn" onclick="backToCategories()">⬅ QUAY LẠI</button>
+    <h2>BẢNG GIÁ UGPHONE</h2>
+      <div class="product-grid">
+      <div class="product-card">
+        <span class="price-tag">140.000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png">
+        <h3>SVIP 7 NGÀY + 1738 KC</h3>
+        <p>Đăng Nhập Gmail | TK/MK/CODE</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+      <div class="product-card">
+        <span class="price-tag">50.000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png">
+        <h3>UVIP 10 NGÀY</h3>
+        <p>Đăng Nhập Gmail | TK/MK/CODE</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+      <div class="product-card">
+        <span class="price-tag">55.000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png">
+        <h3>GVIP 10 NGÀY</h3>
+        <p>Đăng Nhập Gmail | TK/MK/CODE</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+      <div class="product-card">
+        <span class="price-tag">55.000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png">
+        <h3>GVIP-12 10 NGÀY</h3>
+        <p>Đăng Nhập Gmail | TK/MK/CODE</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+      <div class="product-card">
+        <span class="price-tag">170.000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png">
+        <h3>UVIP 36 NGÀY</h3>
+        <p>Đăng Nhập Gmail | TK/MK/CODE</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+      <div class="product-card">
+        <span class="price-tag">180.000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png">
+        <h3>GVIP 36 NGÀY</h3>
+        <p>Đăng Nhập Gmail | TK/MK/CODE</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="sv-tkmk2" class="service-detail hidden">
+    <button class="back-btn" onclick="backToCategories()">⬅ QUAY LẠI</button>
+    <h2>BẢNG GIÁ UGPHONE</h2>
+    <div class="product-grid">
+     <div class="product-card">
+        <span class="price-tag">100.000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png">
+        <h3>UVIP 20 NGÀY</h3>
+        <p>Đăng Nhập Gmail | TK/MK/CODE1/CODE2</p>
+        <p>Có Tỉ Lệ + 1000 KC Hoặc 2000 KC</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+     <div class="product-card">
+        <span class="price-tag">110.000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png">
+        <h3>GVIP 20 NGÀY</h3>
+        <p>Đăng Nhập Gmail | TK/MK/CODE1/CODE2</p>
+        <p>Có Tỉ Lệ + 1000 KC Hoặc 2000 KC</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+     <div class="product-card">
+        <span class="price-tag">340.000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png">
+        <h3>UVIP 72 NGÀY</h3>
+        <p>Đăng Nhập Gmail | TK/MK/CODE1/CODE2</p>
+        <p>Có Tỉ Lệ + 1000 KC Hoặc 2000 KC</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+     <div class="product-card">
+        <span class="price-tag">360.000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png">
+        <h3>GVIP 72 NGÀY</h3>
+        <p>Đăng Nhập Gmail | TK/MK/CODE1/CODE2</p>
+        <p>Có Tỉ Lệ + 1000 KC Hoặc 2000 KC</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+     <div class="product-card">
+        <span class="price-tag">680.000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png">
+        <h3>UVIP 144 NGÀY</h3>
+        <p>Đăng Nhập Gmail | TK/MK/CODE1/CODE2/CODE3/CODE4</p>
+        <p>Có Tỉ Lệ + 1000 KC Hoặc 2000 KC</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+     <div class="product-card">
+        <span class="price-tag">720.000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png">
+        <h3>GVIP 144 NGÀY</h3>
+        <p>Đăng Nhập Gmail | TK/MK/CODE1/CODE2/CODE3/CODE4</p>        <p>Có Tỉ Lệ + 1000 KC Hoặc 2000 KC</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="sv-share" class="service-detail hidden">
+    <button class="back-btn" onclick="backToCategories()">⬅ QUAY LẠI</button>
+    <h2>BẢNG GIÁ UGPHONE SHARE</h2>
+    <div class="product-grid">
+    <div class="product-card">
+        <span class="price-tag">3,000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png" style="filter: hue-rotate(90deg);">
+        <h3>ĐỔI MÁY SHARE</h3>
+        <p>đổi sang máy khác, có thể gặp lại lỗi tương tự</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+    <div class="product-card">
+        <span class="price-tag">70,000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png" style="filter: hue-rotate(90deg);">
+        <h3>SVIP 7 NGÀY</h3>
+        <p>buy share phải đợi duyệt</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+    <div class="product-card">
+        <span class="price-tag">90,000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png" style="filter: hue-rotate(90deg);">
+        <h3>SVIP 10 NGÀY</h3>
+        <p>buy share phải đợi duyệt</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+    <div class="product-card">
+        <span class="price-tag">130,000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png" style="filter: hue-rotate(90deg);">
+        <h3>SVIP 15 NGÀY</h3>
+        <p>buy share phải đợi duyệt</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+    <div class="product-card">
+        <span class="price-tag">250,000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png" style="filter: hue-rotate(90deg);">
+        <h3>SVIP 30 NGÀY</h3>
+        <p>buy share phải đợi duyệt</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+    <div class="product-card">
+        <span class="price-tag">29,000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png" style="filter: hue-rotate(90deg);">
+        <h3>GVIP 4 NGÀY</h3>
+        <p>buy share phải đợi duyệt</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+    <div class="product-card">
+        <span class="price-tag">35,000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png" style="filter: hue-rotate(90deg);">
+        <h3>GVIP 5 NGÀY</h3>
+        <p>buy share phải đợi duyệt</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+    <div class="product-card">
+        <span class="price-tag">41,000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png" style="filter: hue-rotate(90deg);">
+        <h3>GVIP 7 NGÀY</h3>
+        <p>buy share phải đợi duyệt</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+    <div class="product-card">
+        <span class="price-tag">49,000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png" style="filter: hue-rotate(90deg);">
+        <h3>GVIP 10 NGÀY</h3>
+        <p>buy share phải đợi duyệt</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+    <div class="product-card">
+        <span class="price-tag">65,000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png" style="filter: hue-rotate(90deg);">
+        <h3>GVIP 15 NGÀY</h3>
+        <p>buy share phải đợi duyệt</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+    <div class="product-card">
+        <span class="price-tag">110,000₫</span>
+        <img src="https://i.imgur.com/aFIoXbW.png" style="filter: hue-rotate(90deg);">
+        <h3>GVIP 30 NGÀY</h3>
+        <p>buy share phải đợi duyệt</p>
+        <a href="https://m.me/nhatminhvnz" class="buy-btn">MUA NGAY</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="sv-giahan" class="service-detail hidden">
+    <button class="back-btn" onclick="backToCategories()">⬅ QUAY LẠI</button>
+    <h2>BẢNG GIÁ UGPHONE GIA HẠN</h2>
+    <div class="product-grid">
+      <div class="product-card">
+      <span class="price-tag">???</span>
+        <img src="" style="filter: invert(1);">
+        <h3>ĐANG BẢO TRÌ</h3>
+        <p></p>
+        <a href="" class="buy-btn">???</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="lienhe" class="section">
+  <h2>📬 LIÊN HỆ</h2>
+  <div class="contact-item">
+    <span>Facebook:</span> <a href="https://facebook.com/nhatminhvnz" target="_blank">Nhật Minh</a>
+  </div>
+  <div class="contact-item">
+    <span>Messenger:</span> <a href="https://m.me/nhatminhvnz" target="_blank">Nhấn vào đây để chat</a>
+  </div>
+  <div class="contact-item">
+    <span>Zalo:</span> <span style="color:#fff; font-weight:700">0394295124</span>
+  </div>
+  <div class="contact-item">
+    <span>Discord:</span> <span style="color:#fff; font-weight:700">nm.vampire</span>
+  </div>
+</div>
+  
+<div id="menu" class="section">
+  <div id="menu-categories">
+    <h2>MỞ RỘNG</h2>
+    <div class="cat-card" onclick="openMenuSub('sub-danhgia')"><h3>⭐ ĐÁNH GIÁ SHOP</h3><p>Xem phản hồi khách hàng</p></div>
+  </div>
+  <div id="sub-danhgia" class="service-detail hidden">
+    <button onclick="backToMenu()" style="background:#1e293b; color:#fff; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; margin-bottom:15px;">⬅ QUAY LẠI</button>
+    <div class="error-message" id="review-error">Không thể kết nối đến server. Đánh giá sẽ được lưu cục bộ.</div>
+    <div style="background:var(--bg-card); padding:20px; border-radius:15px; border:1px solid var(--border-color); margin-bottom:20px; text-align:center;">
+      <div id="star-container" style="font-size:30px; cursor:pointer; margin-bottom:10px;">
+        <span onclick="setStar(1)">★</span><span onclick="setStar(2)">★</span><span onclick="setStar(3)">★</span><span onclick="setStar(4)">★</span><span onclick="setStar(5)">★</span>
+      </div>
+      <input type="hidden" id="star-value" value="0">
+      <input type="text" id="rev-service" placeholder="Dịch vụ mua..." style="width:100%; padding:10px; margin-bottom:10px; background:#020617; border:1px solid #1e293b; color:#fff; border-radius:8px;">
+      <textarea id="rev-content" rows="2" placeholder="Nội dung..." style="width:100%; padding:10px; margin-bottom:10px; background:#020617; border:1px solid #1e293b; color:#fff; border-radius:8px;"></textarea>
+      <button onclick="sendReview()" style="width:100%; padding:12px; background:var(--primary); color:#fff; border:none; border-radius:10px; font-weight:800; cursor:pointer">GỬI ĐÁNH GIÁ</button>
+    </div>
+    <div id="review-list"></div>
+  </div>
+</div>
+
+<footer>© 2025 DESIGNED BY NHẬT MINH 🌸</footer>
+
+<script>
+  // ============================================
+  // FIXED: API CONFIGURATION
+  // ============================================
+  const API_BASE_URL = 'http://fi3.bot-hosting.net:22779/api';
+  const myId = Math.random().toString(36).substring(7);
+  let isUsingMockData = false;
+  
+  // Dữ liệu mẫu khi API không hoạt động
+  const mockData = {
+    totalReviews: 156,
+    totalVisits: 1250,
+    onlineCount: 42,
+    reviews: [
+      { name: "Khách Ẩn Danh", stars: 5, service: "UGPHONE GMAIL ẢO", content: "Máy ổn định, hỗ trợ nhanh", date: "2024-01-15" },
+      { name: "Khách Ẩn Danh", stars: 4, service: "UGPHONE SHARE", content: "Giá rẻ, đợi duyệt hơi lâu", date: "2024-01-14" },
+      { name: "Khách Ẩn Danh", stars: 5, service: "UGPHONE GMAIL THẬT", content: "Sống lâu, không bị out", date: "2024-01-13" },
+      { name: "Khách Ẩn Danh", stars: 5, service: "UGPHONE GMAIL ẢO", content: "Mua nhiều lần rồi, đều ổn", date: "2024-01-12" }
+    ]
+  };
+
+  // ============================================
+  // FIXED: LOADING & INITIALIZATION
+  // ============================================
+  window.addEventListener('load', () => {
+    setTimeout(() => { 
+      const loader = document.getElementById("loading-screen");
+      if(loader) loader.style.display = "none"; 
+    }, 800);
+    
+    // Khởi tạo dữ liệu
+    updateStats();
+    
+    // Thiết lập ping định kỳ
+    setInterval(sendPing, 15000); 
+    setInterval(updateStats, 20000);
+    
+    // Khởi tạo sao đánh giá
+    setStar(0);
+  });
+
+  // ============================================
+  // FIXED: PING FUNCTION với xử lý lỗi
+  // ============================================
+  async function sendPing() {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      const response = await fetch(`${API_BASE_URL}/ping`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          userId: myId, 
+          action: 'ping',
+          timestamp: new Date().toISOString()
+        }),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("Ping successful:", data);
+      
+    } catch(error) {
+      console.log("Ping failed, using offline mode");
+      // Không hiển thị lỗi cho ping để tránh làm phiền người dùng
+    }
+  }
+
+  // ============================================
+  // FIXED: UPDATE STATS với xử lý lỗi chi tiết
+  // ============================================
+  async function updateStats() {
+    const errorElement = document.getElementById('stats-error');
+    
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      
+      const response = await fetch(`${API_BASE_URL}/stats`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`Server responded with status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Ẩn thông báo lỗi nếu có
+      if (errorElement) errorElement.style.display = 'none';
+      isUsingMockData = false;
+      
+      // Cập nhật giao diện với dữ liệu thật
+      updateUI(data);
+      
+    } catch(error) {
+      console.error("Failed to fetch stats:", error);
+      
+      // Hiển thị thông báo lỗi
+      if (errorElement) {
+        errorElement.style.display = 'block';
+        errorElement.textContent = `Không thể kết nối đến server: ${error.message}. Đang sử dụng dữ liệu tạm thời.`;
+      }
+      
+      isUsingMockData = true;
+      
+      // Cập nhật giao diện với dữ liệu mẫu
+      updateUI(mockData);
+    }
+  }
+
+  // ============================================
+  // FIXED: Hàm cập nhật giao diện
+  // ============================================
+  function updateUI(data) {
+    // Cập nhật thống kê
+    document.getElementById('stat-reviews').innerText = (data.totalReviews || 0) + "+";
+    document.getElementById('stat-visits').innerText = data.totalVisits || 0;
+    document.getElementById('stat-online').innerText = data.onlineCount || 0;
+    
+    // Cập nhật danh sách đánh giá
+    const container = document.getElementById('review-list');
+    if(container && data.reviews) {
+      container.innerHTML = data.reviews.map(review => `
+        <div class="review-item">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <b>${review.name || 'Khách Ẩn Danh'}</b>
+            <span class="review-stars">${"★".repeat(review.stars || 5)}</span>
+          </div>
+          <small style="color:var(--secondary)">Dịch vụ: ${review.service || 'Không xác định'}</small>
+          ${review.date ? `<small style="color:#64748b; display:block;">${review.date}</small>` : ''}
+          <p style="margin-top:5px; color:#fff">${review.content || 'Không có nội dung'}</p>
+        </div>
+      `).join('') || '<p style="text-align:center; color:#64748b;">Chưa có đánh giá nào.</p>';
+    }
+  }
+
+  // ============================================
+  // FIXED: GỬI ĐÁNH GIÁ với xử lý lỗi
+  // ============================================
+  async function sendReview() {
+    const stars = parseInt(document.getElementById('star-value').value);
+    const service = document.getElementById('rev-service').value.trim();
+    const content = document.getElementById('rev-content').value.trim();
+    const errorElement = document.getElementById('review-error');
+    
+    // Validation
+    if(stars === 0) {
+      alert("Vui lòng chọn số sao đánh giá!");
+      return;
+    }
+    
+    if(!service) {
+      alert("Vui lòng nhập dịch vụ bạn đã mua!");
+      return;
+    }
+    
+    if(!content) {
+      alert("Vui lòng nhập nội dung đánh giá!");
+      return;
+    }
+    
+    // Chuẩn bị dữ liệu
+    const reviewData = {
+      stars: stars,
+      service: service,
+      content: content,
+      name: "Khách Ẩn Danh",
+      action: 'review',
+      timestamp: new Date().toISOString()
+    };
+    
+    try {
+      // Thử gửi đến API thật
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
+      const response = await fetch(`${API_BASE_URL}/reviews`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(reviewData),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert("✅ Gửi đánh giá thành công! Cảm ơn bạn.");
+        
+        // Reset form
+        document.getElementById('rev-service').value = '';
+        document.getElementById('rev-content').value = '';
+        setStar(0);
+        
+        // Cập nhật lại danh sách
+        updateStats();
+        
+        if (errorElement) errorElement.style.display = 'none';
+      } else {
+        throw new Error(result.message || 'Gửi thất bại');
+      }
+      
+    } catch(error) {
+      console.error("Review submission failed:", error);
+      
+      // Lưu cục bộ vào localStorage như fallback
+      const localReviews = JSON.parse(localStorage.getItem('localReviews') || '[]');
+      localReviews.push({
+        ...reviewData,
+        id: Date.now(),
+        local: true
+      });
+      localStorage.setItem('localReviews', JSON.stringify(localReviews));
+      
+      // Thông báo cho người dùng
+      alert("⚠ Không thể kết nối server. Đánh giá đã được lưu cục bộ và sẽ được đồng bộ khi có kết nối.");
+      
+      // Reset form
+      document.getElementById('rev-service').value = '';
+      document.getElementById('rev-content').value = '';
+      setStar(0);
+      
+      // Hiển thị thông báo lỗi
+      if (errorElement) {
+        errorElement.style.display = 'block';
+        errorElement.textContent = "Đánh giá đã được lưu cục bộ. Sẽ đồng bộ khi có kết nối.";
+      }
+      
+      // Cập nhật hiển thị với đánh giá cục bộ
+      updateLocalReviews();
+    }
+  }
+
+  // ============================================
+  // Hàm hỗ trợ: Hiển thị đánh giá cục bộ
+  // ============================================
+  function updateLocalReviews() {
+    const localReviews = JSON.parse(localStorage.getItem('localReviews') || '[]');
+    const container = document.getElementById('review-list');
+    
+    if (container && localReviews.length > 0) {
+      const localReviewsHTML = localReviews.map(review => `
+        <div class="review-item" style="border-left: 4px solid #f59e0b;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <b>${review.name || 'Khách Ẩn Danh'} <small style="color:#f59e0b;">(Chưa đồng bộ)</small></b>
+            <span class="review-stars">${"★".repeat(review.stars || 5)}</span>
+          </div>
+          <small style="color:var(--secondary)">Dịch vụ: ${review.service || 'Không xác định'}</small>
+          <p style="margin-top:5px; color:#fff">${review.content || 'Không có nội dung'}</p>
+        </div>
+      `).join('');
+      
+      container.innerHTML = localReviewsHTML + container.innerHTML;
+    }
+  }
+
+  // ============================================
+  // Các hàm giao diện (giữ nguyên)
+  // ============================================
+  function showSection(id, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active-link'));
+    el.classList.add('active-link');
+  }
+  
+  function openService(id) { 
+    document.getElementById('service-categories').classList.add('hidden'); 
+    document.getElementById(id).classList.remove('hidden'); 
+  }
+  
+  function backToCategories() { 
+    document.getElementById('service-categories').classList.remove('hidden'); 
+    document.querySelectorAll('.service-detail').forEach(el => el.classList.add('hidden')); 
+  }
+  
+  function openMenuSub(id) { 
+    document.getElementById('menu-categories').classList.add('hidden'); 
+    document.getElementById(id).classList.remove('hidden'); 
+    
+    // Hiển thị đánh giá cục bộ nếu có
+    updateLocalReviews();
+  }
+  
+  function backToMenu() { 
+    document.getElementById('menu-categories').classList.remove('hidden'); 
+    document.getElementById('sub-danhgia').classList.add('hidden'); 
+  }
+  
+  function setStar(n) {
+    document.getElementById('star-value').value = n;
+    const stars = document.querySelectorAll('#star-container span');
+    stars.forEach((s, i) => s.style.color = i < n ? '#fbbf24' : '#334155');
+  }
+</script>
+</body>
+</html>
